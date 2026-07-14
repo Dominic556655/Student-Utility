@@ -32,6 +32,8 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 if not SECRET_KEY:
     raise Exception("SECRET_KEY is missing in environment variables")
 
+PYTHON_VERSION=3.12
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
