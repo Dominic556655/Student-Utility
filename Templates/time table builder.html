@@ -1,0 +1,309 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Ichason—Lab | Free Time-Table Builder for University Students</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="shortcut icon"
+      href="{% static 'img/image_2.jpg' %}"
+      type="image/x-icon"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}" />
+
+    <!-- <link rel="stylesheet" href="{% static 'css/flaticon.css' %}" /> -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <style>
+    /* Style for the notice */
+    .landscape-notice {
+      display: none;
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+      padding: 10px 40px 10px 10px; /* space for close button */
+      text-align: center;
+      font-size: 14px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 1000; /* ensure it sits above other elements */
+    }
+    .landscape-notice button {
+      border: none;
+      background: transparent;
+      color: #856404;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      padding: 0;
+      position: absolute;
+      right: 10px;
+      top: 8px;
+    }
+    /* Allow clicks to pass through the hero overlay under the notice */
+    .hero-wrap .overlay {
+      pointer-events: none;
+    }
+  </style>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light"
+      id="ftco-navbar"
+    >
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}"
+          ><span>ICHASON</span>—LAB</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#ftco-nav"
+          aria-controls="ftco-nav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="oi oi-menu"></span> Menu
+        </button>
+
+        <div class="collapse navbar-collapse" id="ftco-nav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a href="{% url 'index' %}" class="nav-link">Home</a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'about' %}" class="nav-link">About</a>
+            </li>
+
+            <li class="nav-item position-relative">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="userDropdown"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                >Student-tools</a
+              >
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'gpa calculator' %}"
+                  >GPA Calculator</a
+                >
+                <a class="dropdown-item" href="{% url 'cgpa calculator' %}"
+                  >CGPA Calculator</a
+                >
+                <a class="dropdown-item" href="{% url 'exam score predict' %}"
+                  >Exam Score predict</a
+                >
+                <a class="dropdown-item" href="{% url 'assignment planner' %}"
+                  >Assignment Planner</a
+                >
+                <a class="dropdown-item" href="{% url 'time table builder' %}"
+                  >Time-table Builder</a
+                >
+                <a class="dropdown-item" href="{% url 'study timer' %}"
+                  >Study Timer</a
+                >
+                <a class="dropdown-item" href="{% url 'ai note summarizer' %}"
+                  >AI Note-Summarizer</a
+                >
+              </div>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a href="{% url 'credits' %}" class="nav-link">Credits</a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'contact' %}" class="nav-link">Contact</a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'account_logout' %}" class="nav-link">Logout</a>
+            </li>
+            {% endif %} {% if not user.is_authenticated %}
+            <li class="nav-item">
+              <a href="{% url 'account_login' %}" class="nav-link">Sign-in</a>
+              {% endif %}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- END nav -->
+
+    <div class="landscape-notice" id="landscapeNotice">
+      📱 For a better experience, rotate your phone to landscape mode.
+      <button type="button" id="closeLandscapeNotice">✕</button>
+    </div>
+
+    <div class="hero-wrap">
+      <div class="overlay"></div>
+    </div>
+    <div class="container py-5" style="margin-top: 3rem">
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="card shadow border-0 gpa-card">
+            <div class="card-body p-4 p-md-5">
+              <h2>Time Table Builder</h2>
+
+              <form method="POST">
+                {% csrf_token %}
+
+                <input
+                  type="text"
+                  name="course"
+                  placeholder="Course"
+                  required
+                />
+
+                <select name="day">
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday</option>
+                </select>
+
+                <input type="time" name="start_time" required />
+
+                <input type="time" name="end_time" required />
+
+                <input type="text" name="venue" placeholder="Venue" /> <br />
+                <br />
+
+                <button type="submit">Save</button>
+              </form>
+
+              <hr />
+
+              <h3 style="text-align: center"><strong>My Timetable</strong></h3>
+
+              <form action="{% url 'download timetable' %}" method="GET">
+                <button type="submit" class="btn btn-primary">
+                  Download PDF</button
+                ><br />
+                <label class="text-dark">Time Format</label>
+                <select name="time_format">
+                  <option value="24">24 Hour</option>
+                  <option value="12">12 Hour (AM/PM)</option>
+                </select>
+              </form>
+
+              <br />
+
+              <button class="btn btn-danger mb-3" onclick="clearTimeTable()">
+                Clear All History
+              </button>
+              <div class="table-responsive">
+                <table class="table table-bordered text-center mt-4">
+                  <thead class="table-dark">
+                    <tr>
+                      <th><strong>Course</strong></th>
+                      <th><strong>Day</strong></th>
+                      <th><strong>Time</strong></th>
+                      <th><strong>Venue</strong></th>
+                      <th><strong>Action</strong></th>
+                    </tr>
+                  </thead>
+                  {% for entry in entries %}
+                  <tr class="draggable-row" data-id="{{ entry.id }}">
+                    <td>{{ entry.course }}</td>
+                    <td>{{ entry.display_day }}</td>
+                    <td>{{ entry.start_time }} - {{ entry.end_time }}</td>
+                    <td>{{ entry.venue }}</td>
+                    <td>
+                      <!-- Single DELETE  -->
+                      <button
+                        class="btn btn-danger btn-sm delete-btn"
+                        data-id="{{ entry.id }}"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+
+                  {% endfor %}
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-12 text-center">
+      <p>
+        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+        Copyright &copy;
+        <script>
+          document.write(new Date().getFullYear());
+        </script>
+        All rights reserved | Ichason—Lab
+      </p>
+    </div>
+
+    <script src="{% static 'js/Student-tools/time-table-builder.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2/dist/umd/popper.min.js"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/jquery.easing.1.3.js' %}"></script>
+    <script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'js/jquery.stellar.min.js' %}"></script>
+    <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+    <script src="{% static 'js/jquery.animateNumber.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+    <script src="{% static 'js/scrollax.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const notice = document.getElementById("landscapeNotice");
+        const closeBtn = document.getElementById("closeLandscapeNotice");
+
+        // Show notice if device is in portrait (height > width) on mobile
+        if (window.innerWidth < 768 && window.innerHeight > window.innerWidth) {
+          notice.style.display = "block";
+        }
+
+        // Hide notice when user clicks ✕
+        closeBtn.addEventListener("click", function () {
+          notice.style.display = "none";
+        });
+
+        // Hide notice on orientation change (portrait -> landscape)
+        window.addEventListener("resize", function () {
+          if (window.innerWidth > window.innerHeight) {
+            // Now in landscape, hide notice
+            notice.style.display = "none";
+          }
+        });
+        // Optionally, also listen to orientationchange for older devices
+        window.addEventListener("orientationchange", function () {
+          if (window.innerWidth > window.innerHeight) {
+            notice.style.display = "none";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,451 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Ichason-Lab | About</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <link
+      rel="shortcut icon"
+      href="{% static 'img/image_2.jpg' %}"
+      type="image/x-icon"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light"
+    >
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}">
+          <span>Ichason</span>-Lab
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#ftco-nav"
+        >
+          <span class="oi oi-menu"></span> Menu
+        </button>
+
+        <div class="collapse navbar-collapse" id="ftco-nav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a href="{% url 'index' %}" class="nav-link">Home</a>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-toggle="dropdown"
+                >Student Tools</a
+              >
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'gpa calculator' %}"
+                  >GPA Calculator</a
+                >
+                <a class="dropdown-item" href="{% url 'cgpa calculator' %}"
+                  >CGPA Calculator</a
+                >
+                <a class="dropdown-item" href="{% url 'exam score predict' %}"
+                  >Exam Score Predict</a
+                >
+                <a class="dropdown-item" href="{% url 'assignment planner' %}"
+                  >Assignment Planner</a
+                >
+                <a class="dropdown-item" href="{% url 'time table builder' %}"
+                  >Time-table Builder</a
+                >
+                <a class="dropdown-item" href="{% url 'study timer' %}"
+                  >Study Timer</a
+                >
+                <a class="dropdown-item" href="{% url 'ai note summarizer' %}"
+                  >AI Note Summarizer</a
+                >
+              </div>
+            </li>
+            <li class="nav-item"></li>
+            {% if user.is_authenticated %}
+
+            <li class="nav-item position-relative">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="userDropdown"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                >General</a
+              >
+              <div class="dropdown-menu">
+                <a
+                  class="dropdown-item"
+                  href="{% url 'about' %}"
+                  class="nav-link"
+                  >About</a
+                >
+                <a
+                  class="dropdown-item"
+                  href="{% url 'blog' %}"
+                  class="nav-link"
+                  >Blog</a
+                >
+
+                <a
+                  class="dropdown-item"
+                  href="{% url 'courses' %}"
+                  class="nav-link"
+                  >Courses</a
+                >
+                <a
+                  class="dropdown-item"
+                  href="{% url 'contact' %}"
+                  class="nav-link"
+                  >Contact</a
+                >
+              </div>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'credits' %}" class="nav-link">Credits</a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'account_logout' %}" class="nav-link">Logout</a>
+            </li>
+            {% endif %} {% if not user.is_authenticated %}
+            <li class="nav-item">
+              <a href="{% url 'account_login' %}" class="nav-link">Sign-in</a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section
+      class="hero-wrap hero-wrap-2"
+      style="background-image: url(&quot;/static/img/bg_2.jpg&quot;)"
+    >
+      <div class="overlay"></div>
+      <div class="container">
+        <div
+          class="row no-gutters slider-text align-items-end justify-content-center"
+        >
+          <div class="col-md-9 text-center pb-5">
+            <h1 class="mb-0 bread">About Ichason-Lab</h1>
+            <p class="breadcrumbs">
+              <span><a href="{% url 'index' %}">Home</a></span>
+              <span> / About</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT INTRO -->
+    <section class="ftco-section">
+      <div class="container">
+        <div class="row d-flex">
+          <div class="col-md-6">
+            <div
+              style="
+                background-image: url(&quot;/static/img/about.jpg&quot;);
+                height: 100%;
+                min-height: 400px;
+                background-size: cover;
+              "
+            ></div>
+          </div>
+
+          <div class="col-md-6 pl-md-5">
+            <h6 class="text-primary">Built for Students</h6>
+            <h2>Learn Smarter, Not Harder</h2>
+
+            <p>
+              Ichason-Lab is a smart academic platform designed to help students
+              organize their studies, improve performance, and reduce academic
+              stress using powerful digital tools.
+            </p>
+
+            <p>
+              From GPA tracking to AI-powered note summarization and exam
+              prediction, we make learning easier and more efficient for
+              students at all levels.
+            </p>
+
+            <p>
+              Our goal is simple — help students study better, plan better, and
+              achieve better results.
+            </p>
+
+            <a href="{% url 'contact' %}" class="btn btn-primary"
+              >Get Support</a
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MISSION / VISION -->
+    <section class="ftco-section bg-light">
+      <div class="container">
+        <div class="row text-center">
+          <div class="col-md-6">
+            <h3>🎯 Our Mission</h3>
+            <p>
+              To empower students with intelligent academic tools that simplify
+              learning and improve academic success.
+            </p>
+          </div>
+
+          <div class="col-md-6">
+            <h3>🚀 Our Vision</h3>
+            <p>
+              To become the leading student productivity platform in Africa and
+              beyond, helping millions of learners succeed.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section
+      class="ftco-section ftco-counter img"
+      style="background-image: url(&quot;/static/img/bg_4.jpg&quot;)"
+    >
+      <div class="overlay"></div>
+      <div class="container">
+        <div class="row text-center text-white">
+          <div class="col-md-3">
+            <h2>15+</h2>
+            <p>Smart Tools</p>
+          </div>
+
+          <div class="col-md-3">
+            <h2>10K+</h2>
+            <p>Students Helped</p>
+          </div>
+
+          <div class="col-md-3">
+            <h2>95%</h2>
+            <p>Success Rate Improvement</p>
+          </div>
+
+          <div class="col-md-3">
+            <h2>24/7</h2>
+            <p>Learning Support</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="ftco-section">
+      <div class="container text-center">
+        <h2>What You Can Do on Ichason-Lab</h2>
+        <p>Everything you need for academic success in one place</p>
+
+        <div class="row mt-5">
+          <div class="col-md-4">
+            <h4>📊 GPA Tracking</h4>
+            <p>Monitor your academic performance easily.</p>
+          </div>
+
+          <div class="col-md-4">
+            <h4>🧠 AI Study Tools</h4>
+            <p>Summarize notes and understand topics faster.</p>
+          </div>
+
+          <div class="col-md-4">
+            <h4>📅 Study Planning</h4>
+            <p>Organize your timetable and assignments.</p>
+          </div>
+
+          <div class="col-md-4 mt-4">
+            <h4>⏱ Study Timer</h4>
+            <p>Improve focus using Pomodoro technique.</p>
+          </div>
+
+          <div class="col-md-4 mt-4">
+            <h4>📈 Exam Prediction</h4>
+            <p>Estimate your performance before exams.</p>
+          </div>
+
+          <div class="col-md-4 mt-4">
+            <h4>🗂 CGPA Calculator</h4>
+            <p>Track your long-term academic progress.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEVELOPER -->
+    <section class="ftco-section bg-light text-center">
+      <div class="container">
+        <h2>👨‍💻 Meet the Creator</h2>
+        <p>
+          Ichason-Lab was built with passion for students who want better
+          learning tools. The goal is to make education simpler using technology
+          and smart systems.
+        </p>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="ftco-footer ftco-no-pt">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-md pt-5">
+            <div class="ftco-footer-widget pt-md-5 mb-4">
+              <h2 class="ftco-heading-2">About</h2>
+              <p>
+                Ichason—Lab is an online learning platform focused on helping
+                students learn effectively through structured and accessible
+                educational content.
+              </p>
+              <ul
+                class="ftco-footer-social list-unstyled float-md-left float-lft"
+              >
+                <li class="ftco-animate">
+                  <a href="#"><span class="fa fa-twitter"></span></a>
+                </li>
+                <li class="ftco-animate">
+                  <a href="#"><span class="fa fa-facebook"></span></a>
+                </li>
+                <li class="ftco-animate">
+                  <a href="#"><span class="fa fa-instagram"></span></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md pt-5">
+            <div class="ftco-footer-widget pt-md-5 mb-4 ml-md-5">
+              <h2 class="ftco-heading-2">Help Desk</h2>
+              <ul class="list-unstyled">
+                <!-- <li><a href="#" class="py-2 d-block">Customer Care</a></li> -->
+                <li>
+                  <a
+                    href="{% url 'Terms_and_Conditions' %}"
+                    class="py-2 d-block"
+                    >Terms & conditions</a
+                  >
+                </li>
+                <li>
+                  <a href="{% url 'privacy_policy' %}" class="py-2 d-block"
+                    >Privacy and Policy</a
+                  >
+                </li>
+                <li>
+                  <a href="{% url 'refund_policy' %}" class="py-2 d-block"
+                    >Refund Policy</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md pt-5">
+            <div class="ftco-footer-widget pt-md-5 mb-4">
+              <h2 class="ftco-heading-2">Recent Courses</h2>
+              <ul class="list-unstyled">
+                <li>
+                  <a href="#" class="py-2 d-block">Computer Engineering</a>
+                </li>
+                <li><a href="#" class="py-2 d-block">Web Design</a></li>
+                <li><a href="#" class="py-2 d-block">Business Studies</a></li>
+                <li><a href="#" class="py-2 d-block">Civil Engineering</a></li>
+                <li>
+                  <a href="#" class="py-2 d-block">Computer Technician</a>
+                </li>
+                <li><a href="#" class="py-2 d-block">Web Developer</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md pt-5">
+            <div class="ftco-footer-widget pt-md-5 mb-4">
+              <h2 class="ftco-heading-2">Have a Questions?</h2>
+              <div class="block-23 mb-3">
+                <ul>
+                  <li>
+                    <!-- <span class="icon fa fa-map-marker"></span
+                    ><span class="text"
+                      >203 Fake St. Mountain View, San Francisco, California,
+                      USA</span
+                    > -->
+                  </li>
+                  <li>
+                    <a href="https://wa.me/234 8141 590 710"
+                      ><span class="icon fa fa-whatsapp"></span>click👉 to Send
+                      us a message on whatsapp</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="mailto:ichadominic5@gmail.com?subject=Help%20with%20Ichason&body=Hello%20Ichason%20Support,%20I%20need%20help%20with%20my%20account"
+                      ><span class="icon fa fa-paper-plane"></span
+                      ><span class="text">click👉 to Send us an Email</span></a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <p>
+              <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+              Copyright &copy;
+              <script>
+                document.write(new Date().getFullYear());
+              </script>
+              All rights reserved | Ichason—Lab
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JS -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2/dist/umd/popper.min.js"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/jquery.easing.1.3.js' %}"></script>
+    <script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'js/jquery.stellar.min.js' %}"></script>
+    <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+    <script src="{% static 'js/jquery.animateNumber.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+    <script src="{% static 'js/scrollax.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+  </body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Ichason-Lab | Payment Successful</title>
+
+    <style>
+      body {
+        text-align: center;
+        font-family: Arial;
+        padding-top: 80px;
+        background: #f4fff4;
+      }
+
+      .box {
+        display: inline-block;
+        padding: 30px;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: green;
+      }
+
+      .wallet {
+        margin-top: 20px;
+        font-size: 18px;
+      }
+
+      .paid {
+        color: #007bff;
+        font-weight: bold;
+      }
+
+      .free {
+        color: #28a745;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="box">
+      <h1>🎉 Payment Successful</h1>
+
+      <p><strong>Reference:</strong> {{ reference }}</p>
+
+      <!-- 🔥 REAL WALLET DATA -->
+      <div class="wallet">
+        <p>
+          💳 Available AI Credits:
+          <span class="paid">{{ wallet.paid_credits }}</span>
+        </p>
+        <p>🆓 Free Credits: <span class="free">{{ free_remaining }}</span></p>
+      </div>
+
+      <p>You will be redirected in <span id="count">3</span> seconds...</p>
+    </div>
+
+    <script>
+      let timeLeft = 3;
+
+      const timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("count").textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          window.location.href = "{% url 'credits' %}";
+        }
+      }, 1000);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2/dist/umd/popper.min.js"></script>
+  </body>
+</html>

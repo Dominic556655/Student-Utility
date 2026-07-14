@@ -1,0 +1,55 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Ichason—Lab | Free GPA Calculator for University Students</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="shortcut icon"
+      href="{% static 'img/image_2.jpg' %}"
+      type="image/x-icon"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}" />
+
+    <!-- <link rel="stylesheet" href="{% static 'css/flaticon.css' %}" /> -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <style>
+    body {
+      background: #f5f7fb;
+    }
+
+    .gpa-card {
+      border-radius: 20px;
+      margin-top: 2rem;
+    }
+  </style>
+  <body>
+    <h2>Transcript Verification</h2>
+
+    <p><b>Document ID:</b> {{ doc_id }}</p>
+
+    <p><b>Name:</b> {{ profile.full_name }}</p>
+    <p><b>Institution:</b> {{ profile.school }}</p>
+
+    <h3>Status:</h3>
+    <p style="color: green">✔ Verified Authentic Transcript</p>
+  </body>
+</html>

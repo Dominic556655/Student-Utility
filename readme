@@ -1,0 +1,40 @@
+https://search.google.com/search-console/welcome
+
+# this is google serach console and it should be added to my Domain DNS management on Namecheap:-
+# google-site-verification=Sv52vgty6iOd4tahDJxAzGIg6Uj7vVrDStzJZxB78Ic
+
+Go to:
+    DNS Management
+        Add Record:
+        Type:
+
+    TXT
+        Name/Host:
+        @ (or blank depending on provider)
+        Value:
+
+        paste Google verification code
+        
+        TTL:
+        default
+
+
+# VERY IMPORTANT for your future setup
+
+When you buy IchasonLab.com, your stack should be:
+
+# You will connect:
+Google Analytics (GA4)
+Google Search Console
+Ads (AdSense later)
+
+All under the same domain
+
+
+# Quick recommendation for your project
+
+When everything is ready:
+
+Best structure:
+https://ichasonlab.com
+https://www.ichasonlab.com (redirect)

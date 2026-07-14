@@ -1,0 +1,366 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Ichason — Free CGPA Calculator for University Students</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="shortcut icon"
+      href="{% static 'img/image_2.jpg' %}"
+      type="image/x-icon"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}" />
+
+    <!-- <link rel="stylesheet" href="{% static 'css/flaticon.css' %}" /> -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <style>
+    body {
+      background: #f5f7fb;
+    }
+
+    .card {
+      border-radius: 20px;
+      margin-top: 4rem;
+    }
+
+    .cgpa-result {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 20px;
+    }
+
+    /* Style for the notice */
+    .landscape-notice {
+      display: none;
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+      padding: 10px 40px 10px 10px; /* space for close button */
+      text-align: center;
+      font-size: 14px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 1000; /* ensure it sits above other elements */
+    }
+    .landscape-notice button {
+      border: none;
+      background: transparent;
+      color: #856404;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      padding: 0;
+      position: absolute;
+      right: 10px;
+      top: 8px;
+    }
+    /* Allow clicks to pass through the hero overlay under the notice */
+    .hero-wrap .overlay {
+      pointer-events: none;
+    }
+  </style>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light"
+      id="ftco-navbar"
+    >
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}"
+          ><span>ICHASON</span>—LAB</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#ftco-nav"
+          aria-controls="ftco-nav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="oi oi-menu"></span> Menu
+        </button>
+
+        <div class="collapse navbar-collapse" id="ftco-nav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a href="{% url 'index' %}" class="nav-link">Home</a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'about' %}" class="nav-link">About</a>
+            </li>
+
+            <li class="nav-item position-relative">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="userDropdown"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                >Student-tools</a
+              >
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'gpa calculator' %}"
+                  >GPA Calculator</a
+                >
+                <a class="dropdown-item" href="{% url 'cgpa calculator' %}"
+                  >CGPA Calculator</a
+                >
+                <a class="dropdown-item" href="{% url 'exam score predict' %}"
+                  >Exam Score predict</a
+                >
+                <a class="dropdown-item" href="{% url 'assignment planner' %}"
+                  >Assignment Planner</a
+                >
+                <a class="dropdown-item" href="{% url 'time table builder' %}"
+                  >Time-table Builder</a
+                >
+                <a class="dropdown-item" href="{% url 'study timer' %}"
+                  >Study Timer</a
+                >
+                <a class="dropdown-item" href="{% url 'ai note summarizer' %}"
+                  >AI Note-Summarizer</a
+                >
+              </div>
+            </li>
+
+            {% if user.is_authenticated %}
+
+            <li class="nav-item">
+              <a href="{% url 'credits' %}" class="nav-link">Credits</a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'contact' %}" class="nav-link">Contact</a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'account_logout' %}" class="nav-link">Logout</a>
+            </li>
+            {% endif %} {% if not user.is_authenticated %}
+            <li class="nav-item">
+              <a href="{% url 'account_login' %}" class="nav-link">Sign-in</a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- END nav -->
+
+    <div class="landscape-notice" id="landscapeNotice">
+      📱 For a better experience, rotate your phone to landscape mode.
+      <button type="button" id="closeLandscapeNotice">✕</button>
+    </div>
+
+    <div class="hero-wrap">
+      <div class="overlay"></div>
+    </div>
+    {% if not user.is_authenticated %}
+    <p
+      class="caps"
+      style="text-align: center; margin-top: 3rem; margin-bottom: -5rem"
+    >
+      <strong>Sign in to save History</strong>
+    </p>
+    {% endif %}
+    <div class="container py-5">
+      <div class="card shadow border-0 p-4">
+        <h2 class="text-center fw-bold">CGPA Calculator</h2>
+        <p class="text-center text-muted">Add your semesters below</p>
+        <div>
+          <a href="{% url 'download_transcript' %}" class="btn btn-primary">
+            Download Transcript (PDF)
+          </a>
+
+          <a href="{% url 'student_profile' %}" class="btn btn-outline-primary">
+            Academic Profile
+          </a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered text-center mt-4">
+            <thead class="table-dark">
+              <tr>
+                <th>Semester</th>
+                <th>GPA</th>
+                <th>Units</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="cgpaBody">
+              <tr>
+                <td>Semester 1</td>
+
+                <td>
+                  <input
+                    type="number"
+                    step="0.01"
+                    class="form-control cgpa-gpa"
+                    placeholder="e.g 4.20"
+                  />
+                </td>
+
+                <td>
+                  <input
+                    type="number"
+                    class="form-control cgpa-units"
+                    placeholder="e.g 18"
+                  />
+                </td>
+
+                <td>
+                  <button class="btn btn-danger remove-sem">Remove</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex gap-3">
+          <button class="btn btn-primary" id="addSem">+ Add Semester</button>
+          <button class="btn btn-success" id="calcCgpa">Calculate CGPA</button>
+          <button class="btn btn-warning" id="resetCgpa">Reset</button>
+        </div>
+
+        <div class="text-center mt-4">
+          <h3>
+            CGPA:
+            <span id="cgpaResult" class="text-success">0.00</span>
+          </h3>
+          <h3>Class: <span id="cgpaClass">-</span></h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4" style="text-align: center; margin-top: -1rem">
+      <h4>Your CGPA History</h4>
+
+      <div class="table-responsive">
+        <table class="table table-bordered text-center" id="cgpaHistoryBody">
+          <thead class="table-dark">
+            <tr>
+              <th>Semester</th>
+              <th>GPA</th>
+              <th>Units</th>
+              <th>CGPA</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for r in records %} {% for s in r.semesters %}
+
+            <tr>
+              <td>Semester {{ s.semester }}</td>
+              <td>{{ s.gpa }}</td>
+              <td>{{ s.units }}</td>
+
+              {# ✅ ONLY show CGPA on LAST semester #}
+              <td>
+                {% if forloop.last %}
+                <strong>{{ r.cgpa|floatformat:2 }}</strong>
+                {% endif %}
+              </td>
+
+              <td>{{ r.created_at }}</td>
+
+              <td>
+                {% if forloop.last %}
+                <button
+                  class="btn btn-danger btn-sm delete-cgpa"
+                  data-id="{{ r.id }}"
+                >
+                  Delete
+                </button>
+                {% endif %}
+              </td>
+            </tr>
+
+            {% endfor %} {% empty %}
+            <tr>
+              <td colspan="6">No records yet</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-md-12 text-center">
+      <p>
+        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+        Copyright &copy;
+        <script>
+          document.write(new Date().getFullYear());
+        </script>
+        All rights reserved | Ichason—Lab
+      </p>
+    </div>
+
+    <script src="{% static 'js/Student-tools/cgpa.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2/dist/umd/popper.min.js"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/jquery.easing.1.3.js' %}"></script>
+    <script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'js/jquery.stellar.min.js' %}"></script>
+    <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+    <script src="{% static 'js/jquery.animateNumber.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+    <script src="{% static 'js/scrollax.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const notice = document.getElementById("landscapeNotice");
+        const closeBtn = document.getElementById("closeLandscapeNotice");
+
+        // Show notice if device is in portrait (height > width) on mobile
+        if (window.innerWidth < 768 && window.innerHeight > window.innerWidth) {
+          notice.style.display = "block";
+        }
+
+        // Hide notice when user clicks ✕
+        closeBtn.addEventListener("click", function () {
+          notice.style.display = "none";
+        });
+
+        // Hide notice on orientation change (portrait -> landscape)
+        window.addEventListener("resize", function () {
+          if (window.innerWidth > window.innerHeight) {
+            // Now in landscape, hide notice
+            notice.style.display = "none";
+          }
+        });
+        // Optionally, also listen to orientationchange for older devices
+        window.addEventListener("orientationchange", function () {
+          if (window.innerWidth > window.innerHeight) {
+            notice.style.display = "none";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

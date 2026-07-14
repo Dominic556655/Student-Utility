@@ -1,0 +1,87 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Ichason—Lab | Free GPA Calculator for University Students</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="shortcut icon"
+      href="{% static 'img/image_2.jpg' %}"
+      type="image/x-icon"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}" />
+
+    <!-- <link rel="stylesheet" href="{% static 'css/flaticon.css' %}" /> -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <style>
+    body {
+      background: #f5f7fb;
+    }
+
+    .gpa-card {
+      border-radius: 20px;
+      margin-top: 2rem;
+    }
+  </style>
+  <body>
+    <div class="container mt-5">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          Academic Information
+        </div>
+
+        <div class="card-body">
+          <form method="POST">
+            {% csrf_token %}
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                {{ form.full_name.label_tag }} {{ form.full_name }}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                {{ form.student_id.label_tag }} {{ form.student_id }}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                {{ form.school.label_tag }} {{ form.school }}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                {{ form.faculty.label_tag }} {{ form.faculty }}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                {{ form.department.label_tag }} {{ form.department }}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                {{ form.academic_year.label_tag }} {{ form.academic_year }}
+              </div>
+            </div>
+
+            <button class="btn btn-primary">Save Information</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,73 @@
+{% load socialaccount %} {% load static %}
+
+<!doctype html>
+<html>
+  <head>
+    <title>Login - Ichason Lab</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link
+      rel="shortcut icon"
+      href="{% static 'img/image_2.jpg' %}"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light"
+      id="ftco-navbar"
+    >
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}"
+          ><span>ICHASON</span>—LAB</a
+        >
+        <div class="hero-wrap">
+          <div class="overlay"></div>
+        </div>
+      </div>
+    </nav>
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="card p-4 shadow">
+            <h3 class="text-center mb-4">Sign In</h3>
+
+            <form method="POST">
+              {% csrf_token %} {{ form.as_p }}
+
+              <button class="btn btn-primary w-100">Login</button>
+            </form>
+
+            <hr />
+
+            <a
+              class="btn btn-danger w-100"
+              href="{% provider_login_url 'google' %}"
+            >
+              Continue with Google
+            </a>
+
+            <p class="text-center mt-3">
+              Don’t have an account?
+              <a href="{% url 'index' %}">Register</a>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12 text-center">
+        <p>
+          <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+          Copyright &copy;
+          <script>
+            document.write(new Date().getFullYear());
+          </script>
+          All rights reserved | Ichason—Lab
+        </p>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2/dist/umd/popper.min.js"></script>
+  </body>
+</html>
