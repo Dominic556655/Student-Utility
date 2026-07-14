@@ -32,8 +32,6 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 if not SECRET_KEY:
     raise Exception("SECRET_KEY is missing in environment variables")
 
-PYTHON_VERSION=3.12
-
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
@@ -108,12 +106,12 @@ WSGI_APPLICATION = 'Student_Utility.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 DATABASES = {
     "default": dj_database_url.config(
@@ -219,13 +217,13 @@ EXCHANGE_API_KEY=os.environ.get("EXCHANGE_API_KEY")
 
 
 # for productions only
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+# if not DEBUG:
+#     SECURE_SSL_REDIRECT = True
 
-    SESSION_COOKIE_SECURE = True
+#     SESSION_COOKIE_SECURE = True
 
-    CSRF_COOKIE_SECURE = True
+#     CSRF_COOKIE_SECURE = True
 
-    SECURE_PROXY_SSL_HEADER = (
-        ("HTTP_X_FORWARDED_PROTO", "https")
-    )
+#     SECURE_PROXY_SSL_HEADER = (
+#         ("HTTP_X_FORWARDED_PROTO", "https")
+#     )
