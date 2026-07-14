@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import dj_database_url
 import os, ssl
 from dotenv import load_dotenv
 os.environ["SMTP_LOCALHOST"] = "localhost"
@@ -33,15 +34,15 @@ if not SECRET_KEY:
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# DEBUG = os.environ.get("DEBUG") == "True"
+# DEBUG = True
+DEBUG = os.environ.get("DEBUG") == "True"
 
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost",]
-# ALLOWED_HOSTS = [
-#     host for host in os.environ.get("ALLOWED_HOSTS", "").split(",")
-#     if host
-# ]
+# ALLOWED_HOSTS = ["127.0.0.1", "localhost",]
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get("ALLOWED_HOSTS","127.0.0.1,localhost").split(",")if host.strip()
+]
 
 
 SITE_ID = 1
@@ -72,6 +73,7 @@ SOCIALACCOUNT_LOGIN_ON_GET=True
 MIDDLEWARE = [
     
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -104,11 +106,17 @@ WSGI_APPLICATION = 'Student_Utility.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
+    )
 }
 
 CACHES = {
@@ -157,6 +165,12 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "static",]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
+
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = DEBUG
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -202,4 +216,14 @@ EXCHANGE_API_KEY=os.environ.get("EXCHANGE_API_KEY")
 
 
 
+# for productions only
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
 
+    SESSION_COOKIE_SECURE = True
+
+    CSRF_COOKIE_SECURE = True
+
+    SECURE_PROXY_SSL_HEADER = (
+        ("HTTP_X_FORWARDED_PROTO", "https")
+    )
