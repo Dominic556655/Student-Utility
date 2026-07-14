@@ -41,6 +41,7 @@ filelock==3.18.0
 Flask==3.0.3
 # google-ai-generativelanguage==0.6.15
 # google-api-core==2.31.0
+numpy==2.4.6
 google-api-python-client==2.197.0
 google-auth==2.53.0
 google-auth-httplib2==0.4.0
