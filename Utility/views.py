@@ -614,7 +614,6 @@ def save_cgpa(request):
             cgpa=float(cgpa),
             total_units=int(total_units),
             semesters=semesters,
-            classification=data["classification"],
         )
 
         return JsonResponse({
@@ -622,7 +621,6 @@ def save_cgpa(request):
             "data": {
                 "cgpa": record.cgpa,
                 "total_units": record.total_units,
-                "classification": record.classification,
                 "id": record.id,
                 "semesters": record.semesters 
             }
@@ -674,7 +672,6 @@ def save_gpa(request):
         data = json.loads(request.body)
         gpa = data.get("gpa")
         total_units = data.get("total_units")
-        classification = data.get("classification")
         courses = data.get("courses") or []
 
         if gpa is None or total_units is None:
@@ -684,7 +681,6 @@ def save_gpa(request):
             user=request.user,
             gpa=float(gpa),
             total_units=int(total_units),
-            classification=classification or "-",
             courses=courses
         )
 
@@ -694,7 +690,6 @@ def save_gpa(request):
         "id": record.id,
         "gpa": record.gpa,
         "total_units": record.total_units,
-        "classification": record.classification,
         "courses": record.courses
     }
 })
@@ -956,7 +951,7 @@ def download_transcript(request):
     elements.append(Spacer(1, 15))
 
     # ================= GPA =================
-    gpa_data = [["Courses", "GPA", "Units", "Class", "Date"]]
+    gpa_data = [["Courses", "GPA", "Units", "Date"]]
 
     gpa_records = GPARecord.objects.filter(user=request.user)
 
@@ -975,37 +970,43 @@ def download_transcript(request):
             smart_cell(course_text),
             f"{r.gpa:.2f}",
             r.total_units,
-            r.classification,
             r.created_at.strftime("%d-%m-%Y")
         ])
 
     gpa_table = Table(gpa_data, colWidths=[
-        doc.width * 0.35,
-        doc.width * 0.12,
-        doc.width * 0.12,
-        doc.width * 0.18,
-        doc.width * 0.23,
+        doc.width * 0.40,  # Semester
+        doc.width * 0.20,  # GPA
+        doc.width * 0.15,  # Units
+        doc.width * 0.25,  # Date
     ],
       repeatRows=1                
 )
 
+    
     gpa_table.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f4e79")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("LINEBELOW", (0, 0), (-1, 0), 1, colors.white),
-        ("LINEBELOW", (0, 1), (-1, -1), 0.2, colors.lightgrey),
-        ("ALIGN", (1, 1), (-1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("FONTSIZE", (0, 0), (-1, -1), 9),
-    ]))
+    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f4e79")),
+    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+
+    ("GRID", (0, 0), (-1, -1), 0.25, colors.grey),
+
+    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+    ("LEFTPADDING", (0, 0), (-1, -1), 6),
+    ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+    ("TOPPADDING", (0, 0), (-1, -1), 6),
+    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+
+    ("FONTSIZE", (0, 0), (-1, -1), 9),
+]))
 
     elements.append(Paragraph("GPA HISTORY", SECTION))
     elements.append(KeepTogether(gpa_table))
     elements.append(Spacer(1, 15))
 
     # ================= CGPA =================
-    cgpa_data = [["Semester", "GPA", "Units", "Class", "Date"]]
+    cgpa_data = [["Semester", "GPA", "Units", "Date"]]
 
     cgpa_records = CGPARecord.objects.filter(user=request.user)
 
@@ -1017,7 +1018,6 @@ def download_transcript(request):
                 f"Semester {s.get('semester')}",
                 f"{s.get('gpa'):.2f}",
                 s.get('units'),
-                "",
                 r.created_at.strftime("%d-%m-%Y")
             ])
 
@@ -1026,37 +1026,38 @@ def download_transcript(request):
             "FINAL CGPA",
             f"{final_record.cgpa:.2f}",
             final_record.total_units,
-            final_record.classification,
             final_record.created_at.strftime("%d-%m-%Y")
         ])
 
-    # cgpa_table = Table(cgpa_data, colWidths=[
-    #     doc.width * 0.3,
-    #     doc.width * 0.2,
-    #     doc.width * 0.2,
-    #     doc.width * 0.3,
-    # ])
     
     cgpa_table = Table(
     cgpa_data,
     colWidths=[
-        doc.width * 0.24,  # Semester
-        doc.width * 0.16,  # CGPA
-        doc.width * 0.16,  # Units
-        doc.width * 0.22,  # Class
-        doc.width * 0.22,  # Date
+        doc.width * 0.40,  # Semester
+        doc.width * 0.20,  # GPA
+        doc.width * 0.15,  # Units
+        doc.width * 0.25,  # Date
     ],
     repeatRows=1
 )
 
     cgpa_table.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f4e79")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("LINEBELOW", (0, 0), (-1, 0), 1, colors.white),
-        ("LINEBELOW", (0, 1), (-1, -1), 0.2, colors.lightgrey),
-        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-        ("FONTSIZE", (0, 0), (-1, -1), 9),
-    ]))
+    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f4e79")),
+    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+
+    ("GRID", (0, 0), (-1, -1), 0.25, colors.grey),
+
+    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+    ("LEFTPADDING", (0, 0), (-1, -1), 6),
+    ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+    ("TOPPADDING", (0, 0), (-1, -1), 6),
+    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+
+    ("FONTSIZE", (0, 0), (-1, -1), 9),
+]))
 
     elements.append(Paragraph("CGPA HISTORY", SECTION))
     elements.append(KeepTogether(cgpa_table))
