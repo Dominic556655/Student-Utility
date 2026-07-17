@@ -5,6 +5,12 @@ let seconds = 1500;
 let endTime = null;
 let hasCompleted = false;
 
+// =========================
+// LOCAL STORAGE KEYS
+// =========================
+const END_TIME_KEY = "studyTimerEndTime";
+const SAVED_KEY = "studyTimerSaved";
+
 // Elements
 const display = document.getElementById("timerDisplay");
 const durationSelect = document.getElementById("duration");
@@ -53,15 +59,26 @@ function setDuration() {
 document.getElementById("startBtn").addEventListener("click", () => {
 
     clearInterval(timer);
+
     hasCompleted = false;
 
-    // Set the time the countdown should finish
+    localStorage.setItem(SAVED_KEY, "false");
+
+    // Set the finish time
     endTime = Date.now() + (seconds * 1000);
+
+    // Save it
+    localStorage.setItem(END_TIME_KEY, endTime);
 
     timer = setInterval(updateTimer, 1000);
 
     updateTimer();
 });
+
+
+// =========================
+// UPDATE TIMER
+// =========================
 
 function updateTimer() {
 
@@ -76,21 +93,28 @@ function updateTimer() {
 
     if (remaining === 0) {
 
-        clearInterval(timer);
+    clearInterval(timer);
 
-        if (!hasCompleted) {
+    if (!hasCompleted &&
+        localStorage.getItem(SAVED_KEY) !== "true") {
 
-            hasCompleted = true;
+        hasCompleted = true;
 
-            completeSound.play();
-            navigator.vibrate?.(200);
+        localStorage.setItem(SAVED_KEY, "true");
 
-            showToast("🎉 Study Session Completed!");
-            sendNotification();
+        localStorage.removeItem(END_TIME_KEY);
 
-            saveSession();
-        }
+        completeSound.play().catch(()=>{});
+
+        navigator.vibrate?.(200);
+
+        showToast("🎉 Study Session Completed!");
+
+        sendNotification();
+
+        saveSession();
     }
+}
 }
 
 // =========================
@@ -105,6 +129,8 @@ document.getElementById("pauseBtn").addEventListener("click", () => {
         0,
         Math.floor((endTime - Date.now()) / 1000)
     );
+
+    localStorage.setItem(END_TIME_KEY, endTime);
 
 });
 
@@ -121,6 +147,9 @@ document.getElementById("resetBtn").addEventListener("click", () => {
 
     updateDisplay();
 
+    localStorage.removeItem(END_TIME_KEY);
+    localStorage.removeItem(SAVED_KEY);
+
 });
 
 // =========================
@@ -128,10 +157,6 @@ document.getElementById("resetBtn").addEventListener("click", () => {
 // =========================
 durationSelect.addEventListener("change", setDuration);
 
-// =========================
-// INITIAL LOAD
-// =========================
-setDuration();
 
 // =========================
 // SAVE SESSION (WITH NOTIFICATION)
@@ -150,16 +175,22 @@ function saveSession() {
     }
 
     fetch("/save-study-session/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken")
-        },
-        body: JSON.stringify({
-            subject: subject,
-            goal: goal,
-            duration: duration
-        })
+
+    method: "POST",
+
+    credentials: "same-origin",
+
+    headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken")
+    },
+
+    body: JSON.stringify({
+        subject,
+        goal,
+        duration
+    })
+
     })
     .then(res => res.json())
     .then(data => {
@@ -176,6 +207,13 @@ function saveSession() {
                     <td>${goal}</td>
                     <td>${duration} mins</td>
                     <td>Just now</td>
+                    <td>
+        <button
+            class="btn btn-danger delete-session-btn"
+            data-id="${data.id}">
+            Delete
+        </button>
+    </td>
                 </tr>
             `;
 
@@ -193,6 +231,102 @@ function saveSession() {
     });
 }
 
+// =========================
+// INITIAL LOAD
+// =========================
+setDuration();
+
+// =========================
+// RESTORE TIMER AFTER REFRESH / PHONE SLEEP
+// =========================
+window.addEventListener("load", () => {
+
+    const savedEnd = Number(localStorage.getItem(END_TIME_KEY));
+
+    const alreadySaved =
+        localStorage.getItem(SAVED_KEY) === "true";
+
+    if (!savedEnd) return;
+
+    endTime = savedEnd;
+
+    if (Date.now() >= endTime) {
+
+        seconds = 0;
+
+        updateDisplay();
+
+        if (!alreadySaved) {
+
+            hasCompleted = true;
+
+            localStorage.setItem(SAVED_KEY, "true");
+
+            localStorage.removeItem(END_TIME_KEY);
+
+            showToast("🎉 Study Session Completed!");
+
+            sendNotification();
+
+            saveSession();
+        }
+
+    } else {
+
+        timer = setInterval(updateTimer, 1000);
+
+        updateTimer();
+    }
+});
+
+
+// =========================
+// PHONE WAKES FROM SLEEP
+// =========================
+document.addEventListener("visibilitychange", () => {
+
+    if (document.visibilityState !== "visible")
+        return;
+
+    const savedEnd = Number(localStorage.getItem(END_TIME_KEY));
+
+    const alreadySaved =
+        localStorage.getItem(SAVED_KEY) === "true";
+
+    if (!savedEnd || alreadySaved)
+        return;
+
+    if (Date.now() >= savedEnd) {
+
+        clearInterval(timer);
+
+        seconds = 0;
+
+        updateDisplay();
+
+        hasCompleted = true;
+
+        localStorage.setItem(SAVED_KEY, "true");
+
+        localStorage.removeItem(END_TIME_KEY);
+
+        showToast("🎉 Study Session Completed!");
+
+        sendNotification();
+
+        saveSession();
+
+    } else {
+
+        endTime = savedEnd;
+
+        clearInterval(timer);
+
+        timer = setInterval(updateTimer, 1000);
+
+        updateTimer();
+    }
+});
 // =========================
 // TOAST MESSAGE
 // =========================
@@ -307,6 +441,7 @@ function clearStudyHistory() {
 
 // let timer = null;
 // let seconds = 1500;
+// let endTime = null;
 // let hasCompleted = false;
 
 // // Elements
@@ -355,44 +490,76 @@ function clearStudyHistory() {
 // // START TIMER
 // // =========================
 // document.getElementById("startBtn").addEventListener("click", () => {
+
 //     clearInterval(timer);
 //     hasCompleted = false;
 
-//     timer = setInterval(() => {
-//         if (seconds > 0) {
-//             seconds--;
-//             updateDisplay();
-//         } else {
-//             clearInterval(timer);
+//     // Set the time the countdown should finish
+//     endTime = Date.now() + (seconds * 1000);
 
-//             if (!hasCompleted) {
-//                 hasCompleted = true;
+//     timer = setInterval(updateTimer, 1000);
 
-//                 completeSound.play();
-//                 navigator.vibrate?.(200);
-
-//                 showToast("🎉 Study Session Completed!");
-//                 sendNotification();   // ✅ ADDED HERE
-//                 saveSession();
-//             }
-//         }
-//     }, 1000);
+//     updateTimer();
 // });
+
+// function updateTimer() {
+
+//     const remaining = Math.max(
+//         0,
+//         Math.floor((endTime - Date.now()) / 1000)
+//     );
+
+//     seconds = remaining;
+
+//     updateDisplay();
+
+//     if (remaining === 0) {
+
+//         clearInterval(timer);
+
+//         if (!hasCompleted) {
+
+//             hasCompleted = true;
+
+//             completeSound.play();
+//             navigator.vibrate?.(200);
+
+//             showToast("🎉 Study Session Completed!");
+//             sendNotification();
+
+//             saveSession();
+//         }
+//     }
+// }
 
 // // =========================
 // // PAUSE TIMER
 // // =========================
 // document.getElementById("pauseBtn").addEventListener("click", () => {
+
 //     clearInterval(timer);
+
+//     // Save remaining seconds
+//     seconds = Math.max(
+//         0,
+//         Math.floor((endTime - Date.now()) / 1000)
+//     );
+
 // });
 
 // // =========================
 // // RESET TIMER
 // // =========================
 // document.getElementById("resetBtn").addEventListener("click", () => {
+
 //     clearInterval(timer);
+
+//     endTime = null;
+
 //     seconds = parseInt(durationSelect.value) * 60;
+
 //     updateDisplay();
+
 // });
 
 // // =========================
