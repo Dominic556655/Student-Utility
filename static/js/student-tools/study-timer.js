@@ -264,7 +264,7 @@
 //     .catch(err => console.error(err));
 // }
 
-const completeSound = new Audio("/static/sounds/alert-sound.mp3");
+const completeSound = new Audio("/static/sounds/Alert-sound.mp3");
 
 let timer = null;
 let seconds = 1500;
