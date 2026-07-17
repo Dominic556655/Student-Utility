@@ -35,26 +35,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.getElementById("cgpaResult").innerText = cgpa.toFixed(2);
 
-// ---------------- CLASSIFICATION ----------------
-let classification = "-";
 
-if (cgpa >= 4.5) classification = "First Class";
-else if (cgpa >= 3.5) classification = "Second Class Upper";
-else if (cgpa >= 2.4) classification = "Second Class Lower";
-else if (cgpa >= 1.5) classification = "Third Class";
-else if (cgpa > 0) classification = "Pass";
-
-document.getElementById("cgpaClass").innerText = classification;
-
-const classEl = document.getElementById("cgpaClass");
-if (classEl) {classEl.innerText = classification;}
-
-saveCGPA(cgpa, totalUnits, classification, semesters);
+saveCGPA(cgpa, totalUnits,  semesters);
     }
 
 
     // ---------------- SAVE CGPA ----------------
-    function saveCGPA(cgpa, totalUnits, classification, semesters) {
+    function saveCGPA(cgpa, totalUnits, semesters) {
 
         fetch("/save-cgpa/", {
             method: "POST",
@@ -65,7 +52,6 @@ saveCGPA(cgpa, totalUnits, classification, semesters);
             body: JSON.stringify({
                 cgpa: cgpa,
                 total_units: totalUnits,
-                classification: classification,
                 semesters: semesters
             })
         })
