@@ -201,6 +201,18 @@
                 Calculate your semester GPA easily
               </p>
               <div>
+                <div class="mb-4">
+                  <label class="form-label fw-bold"> Grading Scale </label>
+
+                  <select class="form-select" id="gradingScale">
+                    <option value="5">5.00 Scale</option>
+                    <option value="4">4.00 Scale</option>
+                  </select>
+
+                  <small class="text-muted">
+                    Select the grading scale used by your institution.
+                  </small>
+                </div>
                 <a
                   href="{% url 'download_transcript' %}"
                   class="btn btn-primary"
@@ -245,15 +257,7 @@
                       </td>
 
                       <td>
-                        <select class="form-select course-grade">
-                          <option value="">Select Grade</option>
-                          <option value="5">A</option>
-                          <option value="4">B</option>
-                          <option value="3">C</option>
-                          <option value="2">D</option>
-                          <option value="1">E</option>
-                          <option value="0">F</option>
-                        </select>
+                        <select class="form-select course-grade"></select>
                       </td>
 
                       <td>
@@ -284,11 +288,6 @@
                     0.00
                   </span>
                 </h3>
-
-                <h5>
-                  Class:
-                  <span id="gpaClass" class="fw-bold text-primary"> - </span>
-                </h5>
               </div>
             </div>
           </div>
@@ -306,7 +305,6 @@
             <th>Courses</th>
             <th>GPA</th>
             <th>Units</th>
-            <th>Class</th>
             <th>Date</th>
             <th>Action</th>
           </tr>
@@ -321,7 +319,6 @@
             </td>
             <td>{{ r.gpa|floatformat:2 }}</td>
             <td>{{ r.total_units }}</td>
-            <td>{{ r.classification }}</td>
             <td>{{ r.created_at }}</td>
 
             <td>
