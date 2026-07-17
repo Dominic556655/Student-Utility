@@ -19,113 +19,167 @@
         return cookieValue;
     }
 
+// ================= GRADING SYSTEM =================
+
+const gradingSystems = {
+    5: {
+        max: 5,
+        grades: [
+            { letter: "A", point: 5 },
+            { letter: "B", point: 4 },
+            { letter: "C", point: 3 },
+            { letter: "D", point: 2 },
+            { letter: "E", point: 1 },
+            { letter: "F", point: 0 }
+        ]
+    },
+
+    4: {
+        max: 4,
+        grades: [
+            { letter: "A", point: 4 },
+            { letter: "B", point: 3 },
+            { letter: "C", point: 2 },
+            { letter: "D", point: 1 },
+            { letter: "F", point: 0 }
+        ]
+    }
+};
+
+function loadGradeOptions(select) {
+
+    const scale = document.getElementById("gradingScale").value;
+    const grades = gradingSystems[scale].grades;
+
+    select.innerHTML = '<option value="">Select Grade</option>';
+
+    grades.forEach(g => {
+        select.innerHTML += `
+            <option value="${g.point}">
+                ${g.letter} (${g.point})
+            </option>
+        `;
+    });
+}
+
+function refreshAllGradeDropdowns() {
+
+    document.querySelectorAll(".course-grade").forEach(select => {
+        loadGradeOptions(select);
+    });
+
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+
+    refreshAllGradeDropdowns();
+
+document.getElementById("gradingScale")
+    .addEventListener("change", refreshAllGradeDropdowns);
 
     console.log("✅ GPA SCRIPT LOADED");
 
     function calculateGPA() {
 
-        console.log("✅ calculateGPA running");
+    console.log("✅ calculateGPA running");
 
-        let totalPoints = 0;
-        let totalUnits = 0;
+    let totalPoints = 0;
+    let totalUnits = 0;
 
-        const rows = document.querySelectorAll("#courseBody tr");
+    // Selected grading scale (4 or 5)
+    const scale = Number(document.getElementById("gradingScale").value);
 
-        // ✅ FIX: define courses array
-        let courses = [];
+    const rows = document.querySelectorAll("#courseBody tr");
 
-        rows.forEach(row => {
+    let courses = [];
 
-    const name = row.querySelector(".course-name")?.value.trim();
-    const unit = Number(row.querySelector(".course-unit")?.value);
-    const grade = Number(row.querySelector(".course-grade")?.value);
+    rows.forEach(row => {
 
-    // 🚨 STRICT VALIDATION (ALL MUST BE VALID)
-    if (!name || isNaN(unit) || isNaN(grade)) {
-        return; // skip completely
-    }
+        const name = row.querySelector(".course-name")?.value.trim();
+        const unit = Number(row.querySelector(".course-unit")?.value);
+        const grade = Number(row.querySelector(".course-grade")?.value);
 
-    courses.push({
-        course: name,
-        unit: unit,
-        grade: grade
+        if (!name || isNaN(unit) || isNaN(grade)) {
+            return;
+        }
+
+        courses.push({
+            course: name,
+            unit: unit,
+            grade: grade
+        });
+
+        totalPoints += unit * grade;
+        totalUnits += unit;
+
     });
 
-    totalPoints += unit * grade;
-    totalUnits += unit;
-});
+    const gpa = totalUnits ? (totalPoints / totalUnits) : 0;
 
-        const gpa = totalUnits ? (totalPoints / totalUnits) : 0;
+    // Display GPA with grading scale
+    document.getElementById("gpaResult").innerText =
+        `${gpa.toFixed(2)} / ${scale.toFixed(1)}`;
 
-        document.getElementById("gpaResult").innerText = gpa.toFixed(2);
+   
 
-        let classification = "-";
+    const unitEl = document.getElementById("totalUnits");
+    if (unitEl) unitEl.innerText = totalUnits;
 
-        if (gpa >= 4.5) classification = "First Class";
-        else if (gpa >= 3.5) classification = "Second Class Upper";
-        else if (gpa >= 2.4) classification = "Second Class Lower";
-        else if (gpa >= 1.5) classification = "Third Class";
-        else if (gpa > 0) classification = "Pass";
+    saveGPA(gpa, totalUnits, courses, scale);
 
-        document.getElementById("gpaClass").innerText = classification;
+}
 
-        const unitEl = document.getElementById("totalUnits");
-        if (unitEl) unitEl.innerText = totalUnits;
+    function saveGPA(gpa, totalUnits, courses, scale) {
 
-        saveGPA(gpa, totalUnits, classification, courses);
-    }
+    console.log("🔥 saveGPA triggered");
 
-    function saveGPA(gpa, totalUnits, classification, courses) {
-
-        console.log("🔥 saveGPA triggered");
-
-        fetch("/save-gpa/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken")
-            },
-            body: JSON.stringify({
-                courses: courses,
-                gpa: gpa,
-                total_units: totalUnits,
-                classification: classification
-            })
+    fetch("/save-gpa/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({
+            courses: courses,
+            gpa: gpa,
+            total_units: totalUnits,
+            
+            grading_scale: scale
         })
-        .then(res => res.json())
-        .then(data => {
+    })
+    .then(res => res.json())
+    .then(data => {
 
-            const record = data.data;
-            const table = document.getElementById("gpaHistoryBody");
+        const record = data.data;
+        const table = document.getElementById("gpaHistoryBody");
 
-            if (!record || !table) return;
+        if (!record || !table) return;
 
-            // convert courses to readable HTML
-            let courseHTML = courses.map(c =>
-                `${c.course} - (${c.unit})`
-            ).join("<br>");
+        let courseHTML = courses.map(c =>
+            `${c.course} - (${c.unit})`
+        ).join("<br>");
 
-            const row = `
-                <tr>
-                    <td>${courseHTML}</td>
-                    <td>${record.gpa.toFixed(2)}</td>
-                    <td>${record.total_units}</td>
-                    <td>${record.classification}</td>
-                    <td>Just now</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm delete-gpa"
-                                data-id="${record.id}">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-            `;
+        const row = `
+            <tr>
+                <td>${courseHTML}</td>
+                <td>${record.gpa.toFixed(2)} / ${scale.toFixed(1)}</td>
+                <td>${record.total_units}</td>
+                <td>Just now</td>
+                <td>
+                    <button class="btn btn-danger btn-sm delete-gpa"
+                            data-id="${record.id}">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `;
 
-            table.insertAdjacentHTML("afterbegin", row);
-        })
-        .catch(err => console.error("❌ ERROR:", err));
-    }
+        table.insertAdjacentHTML("afterbegin", row);
+
+    })
+    .catch(err => console.error("❌ ERROR:", err));
+
+}
 
     // ================= EVENTS =================
 
@@ -140,15 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td><input type="text" class="form-control course-name"></td>
                     <td><input type="number" class="form-control course-unit"></td>
                     <td>
-                        <select class="form-select course-grade">
-                            <option value="">Select Grade</option>
-                            <option value="5">A</option>
-                            <option value="4">B</option>
-                            <option value="3">C</option>
-                            <option value="2">D</option>
-                            <option value="1">E</option>
-                            <option value="0">F</option>
-                        </select>
+                        <select class="form-select course-grade"></select>
                     </td>
                     <td><button class="btn btn-danger remove-row">Remove</button></td>
                 </tr>
@@ -156,6 +202,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             document.getElementById("courseBody")
                 ?.insertAdjacentHTML("beforeend", row);
+                
+                const newSelect = document.querySelector(
+    "#courseBody tr:last-child .course-grade"
+);
+
+loadGradeOptions(newSelect);
         });
 
     document.addEventListener("click", function (e) {
