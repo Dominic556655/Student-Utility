@@ -1,5 +1,6 @@
 const completeSound = new Audio("/static/sounds/Alert-sound.mp3");
 
+let wakeLock = null;
 let timer = null;
 let seconds = 1500;
 let endTime = null;
@@ -20,6 +21,48 @@ const durationSelect = document.getElementById("duration");
 // =========================
 if ("Notification" in window && Notification.permission !== "granted") {
     Notification.requestPermission();
+}
+
+// =========================
+// KEEP SCREEN AWAKE
+// =========================
+
+async function enableWakeLock() {
+
+    if (!("wakeLock" in navigator))
+        return;
+
+    // Already active
+    if (wakeLock)
+        return;
+
+    try {
+
+        wakeLock = await navigator.wakeLock.request("screen");
+
+        console.log("Wake Lock enabled");
+
+        wakeLock.addEventListener("release", () => {
+            console.log("Wake Lock released");
+            wakeLock = null;
+        });
+
+    } catch (err) {
+
+        console.error("Wake Lock failed:", err);
+
+    }
+}
+
+async function disableWakeLock() {
+
+    if (wakeLock) {
+
+        await wakeLock.release();
+
+        wakeLock = null;
+
+    }
 }
 
 // =========================
@@ -56,7 +99,9 @@ function setDuration() {
 // =========================
 // START TIMER
 // =========================
-document.getElementById("startBtn").addEventListener("click", () => {
+document.getElementById("startBtn").addEventListener("click", async () => {
+
+    await enableWakeLock();
 
     clearInterval(timer);
 
@@ -113,6 +158,8 @@ function updateTimer() {
         sendNotification();
 
         saveSession();
+
+        disableWakeLock();
     }
 }
 }
@@ -120,7 +167,7 @@ function updateTimer() {
 // =========================
 // PAUSE TIMER
 // =========================
-document.getElementById("pauseBtn").addEventListener("click", () => {
+document.getElementById("pauseBtn").addEventListener("click", async () => {
 
     clearInterval(timer);
 
@@ -132,12 +179,15 @@ document.getElementById("pauseBtn").addEventListener("click", () => {
 
     localStorage.setItem(END_TIME_KEY, endTime);
 
+    await disableWakeLock();
 });
+
+
 
 // =========================
 // RESET TIMER
 // =========================
-document.getElementById("resetBtn").addEventListener("click", () => {
+document.getElementById("resetBtn").addEventListener("click", async () => {
 
     clearInterval(timer);
 
@@ -150,7 +200,10 @@ document.getElementById("resetBtn").addEventListener("click", () => {
     localStorage.removeItem(END_TIME_KEY);
     localStorage.removeItem(SAVED_KEY);
 
+    await disableWakeLock();
+
 });
+
 
 // =========================
 // CHANGE DURATION
@@ -273,6 +326,8 @@ window.addEventListener("load", () => {
 
     } else {
 
+        enableWakeLock();
+
         timer = setInterval(updateTimer, 1000);
 
         updateTimer();
@@ -283,7 +338,16 @@ window.addEventListener("load", () => {
 // =========================
 // PHONE WAKES FROM SLEEP
 // =========================
-document.addEventListener("visibilitychange", () => {
+document.addEventListener("visibilitychange", async () => {
+
+    // Re-acquire Wake Lock when user comes back
+    if (
+        document.visibilityState === "visible" &&
+        endTime &&
+        Date.now() < endTime
+    ) {
+        await enableWakeLock();
+    }
 
     if (document.visibilityState !== "visible")
         return;
@@ -315,6 +379,9 @@ document.addEventListener("visibilitychange", () => {
         sendNotification();
 
         saveSession();
+
+        // Release Wake Lock when timer finishes
+        await disableWakeLock();
 
     } else {
 
@@ -460,12 +527,27 @@ function clearStudyHistory() {
 
 
 
+
+
+
+
+
+
+
+
+
 // const completeSound = new Audio("/static/sounds/Alert-sound.mp3");
 
 // let timer = null;
 // let seconds = 1500;
 // let endTime = null;
 // let hasCompleted = false;
+
+// // =========================
+// // LOCAL STORAGE KEYS
+// // =========================
+// const END_TIME_KEY = "studyTimerEndTime";
+// const SAVED_KEY = "studyTimerSaved";
 
 // // Elements
 // const display = document.getElementById("timerDisplay");
@@ -515,15 +597,26 @@ function clearStudyHistory() {
 // document.getElementById("startBtn").addEventListener("click", () => {
 
 //     clearInterval(timer);
+
 //     hasCompleted = false;
 
-//     // Set the time the countdown should finish
+//     localStorage.setItem(SAVED_KEY, "false");
+
+//     // Set the finish time
 //     endTime = Date.now() + (seconds * 1000);
+
+//     // Save it
+//     localStorage.setItem(END_TIME_KEY, endTime);
 
 //     timer = setInterval(updateTimer, 1000);
 
 //     updateTimer();
 // });
+
+
+// // =========================
+// // UPDATE TIMER
+// // =========================
 
 // function updateTimer() {
 
@@ -538,21 +631,28 @@ function clearStudyHistory() {
 
 //     if (remaining === 0) {
 
-//         clearInterval(timer);
+//     clearInterval(timer);
 
-//         if (!hasCompleted) {
+//     if (!hasCompleted &&
+//         localStorage.getItem(SAVED_KEY) !== "true") {
 
-//             hasCompleted = true;
+//         hasCompleted = true;
 
-//             completeSound.play();
-//             navigator.vibrate?.(200);
+//         localStorage.setItem(SAVED_KEY, "true");
 
-//             showToast("🎉 Study Session Completed!");
-//             sendNotification();
+//         localStorage.removeItem(END_TIME_KEY);
 
-//             saveSession();
-//         }
+//         completeSound.play().catch(()=>{});
+
+//         navigator.vibrate?.(200);
+
+//         showToast("🎉 Study Session Completed!");
+
+//         sendNotification();
+
+//         saveSession();
 //     }
+// }
 // }
 
 // // =========================
@@ -567,6 +667,8 @@ function clearStudyHistory() {
 //         0,
 //         Math.floor((endTime - Date.now()) / 1000)
 //     );
+
+//     localStorage.setItem(END_TIME_KEY, endTime);
 
 // });
 
@@ -583,6 +685,9 @@ function clearStudyHistory() {
 
 //     updateDisplay();
 
+//     localStorage.removeItem(END_TIME_KEY);
+//     localStorage.removeItem(SAVED_KEY);
+
 // });
 
 // // =========================
@@ -590,10 +695,6 @@ function clearStudyHistory() {
 // // =========================
 // durationSelect.addEventListener("change", setDuration);
 
-// // =========================
-// // INITIAL LOAD
-// // =========================
-// setDuration();
 
 // // =========================
 // // SAVE SESSION (WITH NOTIFICATION)
@@ -612,16 +713,22 @@ function clearStudyHistory() {
 //     }
 
 //     fetch("/save-study-session/", {
-//         method: "POST",
-//         headers: {
-//             "Content-Type": "application/json",
-//             "X-CSRFToken": getCookie("csrftoken")
-//         },
-//         body: JSON.stringify({
-//             subject: subject,
-//             goal: goal,
-//             duration: duration
-//         })
+
+//     method: "POST",
+
+//     credentials: "same-origin",
+
+//     headers: {
+//         "Content-Type": "application/json",
+//         "X-CSRFToken": getCookie("csrftoken")
+//     },
+
+//     body: JSON.stringify({
+//         subject,
+//         goal,
+//         duration
+//     })
+
 //     })
 //     .then(res => res.json())
 //     .then(data => {
@@ -638,6 +745,13 @@ function clearStudyHistory() {
 //                     <td>${goal}</td>
 //                     <td>${duration} mins</td>
 //                     <td>Just now</td>
+//                     <td>
+//         <button
+//             class="btn btn-danger delete-session-btn"
+//             data-id="${data.id}">
+//             Delete
+//         </button>
+//     </td>
 //                 </tr>
 //             `;
 
@@ -655,6 +769,102 @@ function clearStudyHistory() {
 //     });
 // }
 
+// // =========================
+// // INITIAL LOAD
+// // =========================
+// setDuration();
+
+// // =========================
+// // RESTORE TIMER AFTER REFRESH / PHONE SLEEP
+// // =========================
+// window.addEventListener("load", () => {
+
+//     const savedEnd = Number(localStorage.getItem(END_TIME_KEY));
+
+//     const alreadySaved =
+//         localStorage.getItem(SAVED_KEY) === "true";
+
+//     if (!savedEnd) return;
+
+//     endTime = savedEnd;
+
+//     if (Date.now() >= endTime) {
+
+//         seconds = 0;
+
+//         updateDisplay();
+
+//         if (!alreadySaved) {
+
+//             hasCompleted = true;
+
+//             localStorage.setItem(SAVED_KEY, "true");
+
+//             localStorage.removeItem(END_TIME_KEY);
+
+//             showToast("🎉 Study Session Completed!");
+
+//             sendNotification();
+
+//             saveSession();
+//         }
+
+//     } else {
+
+//         timer = setInterval(updateTimer, 1000);
+
+//         updateTimer();
+//     }
+// });
+
+
+// // =========================
+// // PHONE WAKES FROM SLEEP
+// // =========================
+// document.addEventListener("visibilitychange", () => {
+
+//     if (document.visibilityState !== "visible")
+//         return;
+
+//     const savedEnd = Number(localStorage.getItem(END_TIME_KEY));
+
+//     const alreadySaved =
+//         localStorage.getItem(SAVED_KEY) === "true";
+
+//     if (!savedEnd || alreadySaved)
+//         return;
+
+//     if (Date.now() >= savedEnd) {
+
+//         clearInterval(timer);
+
+//         seconds = 0;
+
+//         updateDisplay();
+
+//         hasCompleted = true;
+
+//         localStorage.setItem(SAVED_KEY, "true");
+
+//         localStorage.removeItem(END_TIME_KEY);
+
+//         showToast("🎉 Study Session Completed!");
+
+//         sendNotification();
+
+//         saveSession();
+
+//     } else {
+
+//         endTime = savedEnd;
+
+//         clearInterval(timer);
+
+//         timer = setInterval(updateTimer, 1000);
+
+//         updateTimer();
+//     }
+// });
 // // =========================
 // // TOAST MESSAGE
 // // =========================
@@ -764,3 +974,4 @@ function clearStudyHistory() {
 //     })
 //     .catch(console.error);
 // }
+
